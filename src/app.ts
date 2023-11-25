@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { UserRoutes } from '../../../modules/user/user.route';
+import { UserRoutes } from './user/user.route';
 
 // Initializations
 const app = express();
