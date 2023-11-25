@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 import { IUser } from './user.interface';
 import bcrypt from "bcrypt"
-import config from '../app/config';
+import config from '../../config';
 
 const nameSchema = new Schema({
     firstName: { type: String, required: true },
