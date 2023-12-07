@@ -31,9 +31,20 @@ const getUserFromDB = async (userId: string) => {
     else return { success: false, user: null }
 }
 
+const deleteUserFromDB = async (userId: string) => {
+    const user = await User.isUserExists(userId);
+    if (user?.userId) {
+        const response = await User.deleteOne({ userId });
+        if(response.deletedCount >= 1) return { success: true, isDeleted: true, result: response }
+        else return { success: true, isDeleted: false, result: response }
+    }
+    else return { success: false, isDeleted: false }
+}
+
 
 export const UserServices = {
     createUserInDB,
     getUsersFromDB,
-    getUserFromDB
+    getUserFromDB,
+    deleteUserFromDB
 };

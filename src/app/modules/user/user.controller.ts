@@ -19,15 +19,21 @@ const createUser = async (req: Request, res: Response) => {
             res.status(400).json({
                 success: false,
                 message: 'User creation failed!',
-                error: zodParsedData.error.errors,
+                error: {
+                    code: 400,
+                    description: zodParsedData.error.errors
+                },
             });
         }
 
     } catch (err) {
         res.status(500).json({
             success: false,
-            message: (err as { message: string })?.message || 'Failed to create user',
-            error: err,
+            message: 'Failed to create user',
+            error: {
+                code: 500,
+                description: (err as { message: string })?.message
+            },
         });
     }
 };
@@ -44,8 +50,11 @@ const getUsers = async (_req: Request, res: Response) => {
     } catch (err) {
         res.status(500).json({
             success: false,
-            message: (err as { message: string })?.message || 'Failed to fetch users',
-            error: err,
+            message: 'Failed to fetch users',
+            error: {
+                code: 500,
+                description: (err as { message: string })?.message
+            },
         });
     }
 };
@@ -66,9 +75,9 @@ const getUser = async (req: Request, res: Response) => {
             res.status(404).json({
                 success: false,
                 message: "User not found!",
-                "error": {
-                    "code": 404,
-                    "description": "User not found!"
+                error: {
+                    code: 404,
+                    description: "User not found!"
                 }
             });
         }
@@ -76,8 +85,56 @@ const getUser = async (req: Request, res: Response) => {
     } catch (err) {
         res.status(500).json({
             success: false,
-            message: 'Failed to retrieve student',
-            error: err,
+            message: 'Failed to retrieve user',
+            error: {
+                code: 500,
+                description: (err as { message: string })?.message
+            },
+        });
+    }
+};
+
+const deleteUser = async (req: Request, res: Response) => {
+    try {
+        const { userId } = req.params || {};
+
+        const response = await UserServices.deleteUserFromDB(userId); // Calling service function
+
+        if (response.success && response.isDeleted) {
+            res.status(200).json({
+                success: true,
+                message: 'User deleted successfully!',
+                data: response?.result
+            });
+        }
+        else if (response.success && !response.isDeleted) {
+            res.status(500).json({
+                success: false,
+                message: 'Failed to delete user',
+                error: {
+                    code: 500,
+                    description: response.result
+                }
+            });
+        } else {
+            res.status(404).json({
+                success: false,
+                message: "User not found!",
+                error: {
+                    code: 404,
+                    description: "User not found!"
+                }
+            });
+        }
+
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: 'Failed to delete user',
+            error: {
+                code: 500,
+                description: (err as { message: string })?.message
+            },
         });
     }
 };
@@ -85,5 +142,6 @@ const getUser = async (req: Request, res: Response) => {
 export const UserControllers = {
     createUser,
     getUsers,
-    getUser
+    getUser,
+    deleteUser
 };

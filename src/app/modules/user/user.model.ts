@@ -49,7 +49,7 @@ userSchema.methods.toJSON = function () {
 
 // Static method to check user exists or not 
 userSchema.statics.isUserExists = async function (userId: string) {
-    return await User.findOne({ userId })
+    return await User.findOne({ userId }, '-orders -password -__v -_id')
 }
 
 export const User = model<IUser, UserModel>('User', userSchema);
