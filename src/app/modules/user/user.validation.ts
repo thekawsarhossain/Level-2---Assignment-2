@@ -19,12 +19,12 @@ const addressSchema = z.object({
 
 const orderSchema = z.object({
     productName: z.string(),
-    price: z.number(),
-    quantity: z.number(),
+    price: z.number().positive(),
+    quantity: z.number().int().positive(),
 });
 
 export const userValidationSchema = z.object({
-    userId: z.number(),
+    userId: z.number().int().positive(),
     username: z.string(),
     password: z.string().min(8).max(20),
     fullName: nameSchema,
