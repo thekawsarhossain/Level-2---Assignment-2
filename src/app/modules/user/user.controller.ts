@@ -16,11 +16,10 @@ const createUser = async (req: Request, res: Response) => {
                 data: response,
             });
         } else {
-            console.log(zodParsedData.error);
             res.status(400).json({
                 success: false,
-                message: 'User creation failed',
-                error: zodParsedData.error,
+                message: 'User creation failed!',
+                error: zodParsedData.error.errors,
             });
         }
 
@@ -45,7 +44,7 @@ const getUsers = async (_req: Request, res: Response) => {
     } catch (err) {
         res.status(500).json({
             success: false,
-            message: 'Failed to fetch users',
+            message: (err as { message: string })?.message || 'Failed to fetch users',
             error: err,
         });
     }
