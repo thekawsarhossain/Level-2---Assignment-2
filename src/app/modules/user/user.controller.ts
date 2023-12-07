@@ -6,15 +6,24 @@ const createUser = async (req: Request, res: Response) => {
     try {
         const { user: userData } = req.body;
 
-        const zodParsedData = userValidationSchema.parse(userData); // Validation using Zod
+        const zodParsedData = userValidationSchema.safeParse(userData); // Validation using Zod
 
-        const response = await UserServices.createUserInDB(zodParsedData); // Calling service function
+        if (zodParsedData.success) {
+            const response = await UserServices.createUserInDB(zodParsedData.data); // Calling service function
+            res.status(200).json({
+                success: true,
+                message: 'User created successfully!',
+                data: response,
+            });
+        } else {
+            console.log(zodParsedData.error);
+            res.status(400).json({
+                success: false,
+                message: 'User creation failed',
+                error: zodParsedData.error,
+            });
+        }
 
-        res.status(200).json({
-            success: true,
-            message: 'User created successfully!',
-            data: response,
-        });
     } catch (err) {
         res.status(500).json({
             success: false,
@@ -48,11 +57,23 @@ const getUser = async (req: Request, res: Response) => {
 
         const response = await UserServices.getUserFromDB(userId); // Calling service function
 
-        res.status(200).json({
-            success: true,
-            message: 'User fetched successfully!',
-            data: response,
-        });
+        if (response.success) {
+            res.status(200).json({
+                success: true,
+                message: 'User fetched successfully!',
+                data: response.user,
+            });
+        } else {
+            res.status(404).json({
+                success: false,
+                message: "User not found!",
+                "error": {
+                    "code": 404,
+                    "description": "User not found!"
+                }
+            });
+        }
+
     } catch (err) {
         res.status(500).json({
             success: false,

@@ -3,7 +3,10 @@ import { User } from './user.model';
 
 const createUserInDB = async (userData: IUser) => {
     const user = new User(userData);
-    return await user.save();
+    const savedUser = await user.save();
+    // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+    const { _id, password, orders, ...rest } = savedUser.toObject({ versionKey: false }) || {};
+    return rest
 };
 
 const getUsersFromDB = async () => {
@@ -23,11 +26,9 @@ const getUsersFromDB = async () => {
 }
 
 const getUserFromDB = async (userId: string) => {
-    const users = User.findOne({ userId }).select({
-        _id: 0,
-        password: 0,
-    });
-    return users;
+    const user = await User.isUserExists(userId);
+    if (user?.userId) return { success: true, user };
+    else return { success: false, user: null }
 }
 
 
