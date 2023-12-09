@@ -35,8 +35,8 @@ const deleteUserFromDB = async (userId: string) => {
     const user = await User.isUserExists(userId);
     if (user?.userId) {
         const response = await User.deleteOne({ userId });
-        if (response.deletedCount >= 1) return { success: true, isDeleted: true, result: response }
-        else return { success: true, isDeleted: false, result: response }
+        if (response.deletedCount >= 1) return { success: true, isDeleted: true }
+        else return { success: true, isDeleted: false }
     }
     else return { success: false, isDeleted: false }
 }
@@ -45,7 +45,7 @@ const updateUserInDB = async (userId: string, updatedUserData: Partial<IUser>) =
     const existingUser = await User.isUserExists(userId);
     if (existingUser?.userId) {
         const { username, fullName, age, email, address, hobbies } = updatedUserData || {};
-        const response = await User.updateOne({ userId }, {
+        const response = await User.findOneAndUpdate({ userId }, {
             $set: {
                 username: username || existingUser.username,
                 age: age || existingUser.age,
@@ -69,7 +69,7 @@ const updateUserInDB = async (userId: string, updatedUserData: Partial<IUser>) =
             runValidators: true,
             select: '-orders -password -__v -_id',
         });
-        return { success: true, result: response }
+        return { success: true, user: response }
     }
     else return { success: false }
 }

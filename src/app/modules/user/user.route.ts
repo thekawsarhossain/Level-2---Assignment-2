@@ -13,11 +13,8 @@ router.delete("/:userId", UserControllers.deleteUser);
 
 router.put("/:userId", UserControllers.updateUser)
 
+// router.put("/:userId/orders", UserControllers.) // Create new order
 /*
-
-router.put("/:userId", UserControllers.) // Update user by id 
-
-router.put("/:userId/orders", UserControllers.) // Create new order
 
 router.get("/:userId/orders", UserControllers.) // get all orders by id
 

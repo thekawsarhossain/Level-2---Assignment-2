@@ -103,7 +103,7 @@ const deleteUser = async (req: Request, res: Response) => {
             res.status(200).json({
                 success: true,
                 message: 'User deleted successfully!',
-                data: response?.result
+                data: null
             });
         }
         else if (response.success && !response.isDeleted) {
@@ -112,7 +112,7 @@ const deleteUser = async (req: Request, res: Response) => {
                 message: 'Failed to delete user',
                 error: {
                     code: 500,
-                    description: response.result
+                    description: null
                 }
             });
         } else {
@@ -150,7 +150,7 @@ const updateUser = async (req: Request, res: Response) => {
             res.status(200).json({
                 success: true,
                 message: 'User updated successfully!',
-                data: response?.result
+                data: response?.user
             });
         }
         else {
@@ -187,6 +187,8 @@ const updateUser = async (req: Request, res: Response) => {
         }
     }
 };
+
+// const 
 
 export const UserControllers = {
     createUser,
