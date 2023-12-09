@@ -105,6 +105,43 @@ const getUserOrdersFormDB = async (userId: string) => {
     else return { success: false }
 }
 
+// Calculate total ordered price of a user using aggregation 
+const calculateTotalOrderedPriceFromDB = async (userId: string) => {
+    const user = await User.isUserExists(userId);
+    if (user?.userId) {
+
+        const response = await User.aggregate([
+            {
+                $match: { userId: Number(userId) }
+            },
+            {
+                $unwind: '$orders'
+            },
+            {
+                $group: {
+                    _id: '$userId',
+                    totalPrice: {
+                        $sum: {
+                            $multiply: ['$orders.price', '$orders.quantity'],
+                        },
+                    },
+                },
+            },
+            {
+                $project: {
+                    _id: 0,
+                    totalPrice: {
+                        $round: ['$totalPrice', 2],
+                    },
+                },
+            },
+        ])
+
+        return { success: true, data: response?.[0] }
+    }
+    else return { success: false }
+}
+
 
 export const UserServices = {
     createUserInDB,
@@ -113,5 +150,6 @@ export const UserServices = {
     deleteUserFromDB,
     updateUserInDB,
     createNewOrderForUser,
-    getUserOrdersFormDB
+    getUserOrdersFormDB,
+    calculateTotalOrderedPriceFromDB
 };
