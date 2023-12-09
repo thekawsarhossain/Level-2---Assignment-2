@@ -36,4 +36,17 @@ export const userValidationSchema = z.object({
     orders: z.array(orderSchema).default([]),
 });
 
-export default userValidationSchema;
+export const partialUserValidationSchema = z.object({
+    userId: z.number().int().positive(),
+    username: z.string(),
+    password: z.string().min(8).max(20),
+    fullName: nameSchema,
+    age: z.number(),
+    email: z.string().email(),
+    isActive: z.boolean().default(true),
+    hobbies: z.array(z.string()),
+    address: addressSchema,
+    orders: z.array(orderSchema).default([]),
+}).partial();
+
+export default { userValidationSchema, partialUserValidationSchema };

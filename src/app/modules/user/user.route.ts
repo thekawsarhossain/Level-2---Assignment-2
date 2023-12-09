@@ -9,7 +9,9 @@ router.get('/', UserControllers.getUsers);
 
 router.get('/:userId', UserControllers.getUser);
 
-router.delete("/:userId", UserControllers.deleteUser)
+router.delete("/:userId", UserControllers.deleteUser);
+
+router.put("/:userId", UserControllers.updateUser)
 
 /*
 
