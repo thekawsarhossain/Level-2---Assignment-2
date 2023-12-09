@@ -1,4 +1,4 @@
-import { IUser } from './user.interface';
+import { IOrder, IUser } from './user.interface';
 import { User } from './user.model';
 
 const createUserInDB = async (userData: IUser) => {
@@ -44,8 +44,9 @@ const deleteUserFromDB = async (userId: string) => {
 const updateUserInDB = async (userId: string, updatedUserData: Partial<IUser>) => {
     const existingUser = await User.isUserExists(userId);
     if (existingUser?.userId) {
-        const { username, fullName, age, email, address, hobbies } = updatedUserData || {};
+        const { username, fullName, age, email, address, hobbies } = updatedUserData || {}; // destructuring
         const response = await User.findOneAndUpdate({ userId }, {
+            // Using set Operator
             $set: {
                 username: username || existingUser.username,
                 age: age || existingUser.age,
@@ -56,6 +57,7 @@ const updateUserInDB = async (userId: string, updatedUserData: Partial<IUser>) =
                 'address.city': address?.city || existingUser.address.city,
                 'address.country': address?.country || existingUser.address.country,
             },
+            // Checking hobbies array has length if so then update 
             ...(hobbies && hobbies.length > 0
                 ? {
                     $addToSet: {
@@ -64,12 +66,41 @@ const updateUserInDB = async (userId: string, updatedUserData: Partial<IUser>) =
                 }
                 : {}),
 
-        }, {
-            new: true,
-            runValidators: true,
-            select: '-orders -password -__v -_id',
-        });
+        },
+            // Asking for new user object, run validation and selecting  
+            {
+                new: true,
+                runValidators: true,
+                select: '-orders -password -__v -_id',
+            });
         return { success: true, user: response }
+    }
+    else return { success: false }
+}
+
+// Creating new order for user 
+const createNewOrderForUser = async (userId: string, orderData: IOrder) => {
+    const user = await User.isUserExists(userId);
+    if (user?.userId) {
+        const order = await User.updateOne(
+            { userId },
+            {
+                $push: {
+                    orders: orderData,
+                },
+            },
+        )
+        return { success: true, order }
+    }
+    else return { success: false }
+}
+
+// Get user all order
+const getUserOrdersFormDB = async (userId: string) => {
+    const user = await User.isUserExists(userId);
+    if (user?.userId) {
+        const order = await User.findOne({ userId }, 'orders -_id')
+        return { success: true, order }
     }
     else return { success: false }
 }
@@ -80,5 +111,7 @@ export const UserServices = {
     getUsersFromDB,
     getUserFromDB,
     deleteUserFromDB,
-    updateUserInDB
+    updateUserInDB,
+    createNewOrderForUser,
+    getUserOrdersFormDB
 };

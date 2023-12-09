@@ -17,7 +17,7 @@ const addressSchema = z.object({
     country: z.string(),
 })
 
-const orderSchema = z.object({
+export const orderValidationSchema = z.object({
     productName: z.string(),
     price: z.number().positive(),
     quantity: z.number().int().positive(),
@@ -33,7 +33,7 @@ export const userValidationSchema = z.object({
     isActive: z.boolean().default(true),
     hobbies: z.array(z.string()),
     address: addressSchema,
-    orders: z.array(orderSchema).default([]),
+    orders: z.array(orderValidationSchema).default([]),
 });
 
 export const partialUserValidationSchema = z.object({
@@ -46,7 +46,5 @@ export const partialUserValidationSchema = z.object({
     isActive: z.boolean().default(true),
     hobbies: z.array(z.string()),
     address: addressSchema,
-    orders: z.array(orderSchema).default([]),
+    orders: z.array(orderValidationSchema).default([]),
 }).partial();
-
-export default { userValidationSchema, partialUserValidationSchema };

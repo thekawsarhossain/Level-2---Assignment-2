@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
-import { partialUserValidationSchema, userValidationSchema } from './user.validation';
+import { orderValidationSchema, partialUserValidationSchema, userValidationSchema } from './user.validation';
 import { UserServices } from './user.service';
 
+// Creating new user 
 const createUser = async (req: Request, res: Response) => {
     try {
         const { user: userData } = req.body;
@@ -20,7 +21,7 @@ const createUser = async (req: Request, res: Response) => {
                 success: false,
                 message: 'Failed to create user due to validation errors',
                 error: {
-                    code: 400,
+                    code: 422,
                     description: (err as { errors: unknown })?.errors
                 },
             });
@@ -37,6 +38,7 @@ const createUser = async (req: Request, res: Response) => {
     }
 };
 
+// Get all users 
 const getUsers = async (_req: Request, res: Response) => {
     try {
         const response = await UserServices.getUsersFromDB(); // Calling service function
@@ -58,6 +60,7 @@ const getUsers = async (_req: Request, res: Response) => {
     }
 };
 
+// Get single user by User id
 const getUser = async (req: Request, res: Response) => {
     try {
         const { userId } = req.params || {};
@@ -93,6 +96,7 @@ const getUser = async (req: Request, res: Response) => {
     }
 };
 
+// Delete single user by user id 
 const deleteUser = async (req: Request, res: Response) => {
     try {
         const { userId } = req.params || {};
@@ -138,6 +142,7 @@ const deleteUser = async (req: Request, res: Response) => {
     }
 };
 
+// User user by user id 
 const updateUser = async (req: Request, res: Response) => {
     try {
         const { userId } = req.params || {};
@@ -163,15 +168,13 @@ const updateUser = async (req: Request, res: Response) => {
                 }
             });
         }
-
-
     } catch (err) {
         if ((err as { name: string })?.name?.includes("ZodError")) {
             res.status(422).json({
                 success: false,
                 message: 'Failed to update user due to validation errors',
                 error: {
-                    code: 400,
+                    code: 422,
                     description: (err as { errors: unknown })?.errors
                 },
             });
@@ -188,12 +191,98 @@ const updateUser = async (req: Request, res: Response) => {
     }
 };
 
-// const 
+// Create a new order and push to user document 
+const createOrder = async (req: Request, res: Response) => {
+    try {
+        const { userId } = req.params;
+        const { order } = req.body;
+
+        const zodParsedData = orderValidationSchema.parse(order);
+
+        const response = await UserServices.createNewOrderForUser(userId, zodParsedData);
+
+        if (response.success) {
+            res.status(200).json({
+                success: true,
+                message: 'Order created successfully!',
+                data: null
+            });
+        }
+        else {
+            res.status(404).json({
+                success: false,
+                message: "Failed to create Order",
+                error: {
+                    code: 404,
+                    description: "User not found, Failed to create Order!"
+                }
+            });
+        }
+    } catch (err) {
+        if ((err as { name: string })?.name?.includes("ZodError")) {
+            res.status(422).json({
+                success: false,
+                message: 'Failed to create order due to validation errors',
+                error: {
+                    code: 422,
+                    description: (err as { errors: unknown })?.errors
+                },
+            });
+        } else {
+            res.status(500).json({
+                success: false,
+                message: 'Failed to create order',
+                error: {
+                    code: 500,
+                    description: (err as { message: string })?.message
+                },
+            });
+        }
+    }
+}
+
+// Get all orders for a specific user by user id 
+const getUserOrders = async (req: Request, res: Response) => {
+    try {
+        const { userId } = req.params;
+        const response = await UserServices.getUserOrdersFormDB(userId);
+
+        if (response.success) {
+            res.status(200).json({
+                success: true,
+                message: 'Order fetched successfully!',
+                data: response.order,
+            })
+        }
+        else {
+            res.status(404).json({
+                success: false,
+                message: "Failed to fetch orders",
+                error: {
+                    code: 404,
+                    description: "User not found, Failed to fetch orders!"
+                }
+            });
+        }
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch user orders',
+            error: {
+                code: 500,
+                description: (err as { message: string })?.message
+            },
+        });
+    }
+}
+
 
 export const UserControllers = {
     createUser,
     getUsers,
     getUser,
     deleteUser,
-    updateUser
+    updateUser,
+    createOrder,
+    getUserOrders
 };
