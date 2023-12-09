@@ -147,7 +147,6 @@ Make sure to set the following environment variables:
         "country": "Bangladesh"
       }
     }
-    // ...
   ]
 }
 ```
