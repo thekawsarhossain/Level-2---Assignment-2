@@ -5,9 +5,7 @@ import { UserServices } from './user.service';
 // Creating new user 
 const createUser = async (req: Request, res: Response) => {
     try {
-        const { user: userData } = req.body;
-
-        const zodParsedData = userValidationSchema.parse(userData); // Validation using Zod
+        const zodParsedData = userValidationSchema.parse(req.body); // Validation using Zod
 
         const response = await UserServices.createUserInDB(zodParsedData); // Calling service function
         res.status(200).json({
@@ -146,9 +144,8 @@ const deleteUser = async (req: Request, res: Response) => {
 const updateUser = async (req: Request, res: Response) => {
     try {
         const { userId } = req.params || {};
-        const { user: updatedUserData } = req.body;
 
-        const zodParsedData = partialUserValidationSchema.parse(updatedUserData); // Validation using Zod
+        const zodParsedData = partialUserValidationSchema.parse(req.body); // Validation using Zod
 
         const response = await UserServices.updateUserInDB(userId, zodParsedData); // Calling service function
         if (response.success) {
@@ -195,9 +192,8 @@ const updateUser = async (req: Request, res: Response) => {
 const createOrder = async (req: Request, res: Response) => {
     try {
         const { userId } = req.params;
-        const { order } = req.body;
 
-        const zodParsedData = orderValidationSchema.parse(order);
+        const zodParsedData = orderValidationSchema.parse(req.body);
 
         const response = await UserServices.createNewOrderForUser(userId, zodParsedData);
 
